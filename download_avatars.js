@@ -15,7 +15,6 @@ if (!fs.existsSync('.env')) {
 }
 
 
-
 function getRepoContributors(repoOwner, repoName, cb) {
   var requestURL = 'https://' + process.env.GITHUB_USER + ':' + process.env.GITHUB_TOKEN + '@api.github.com/repos/' + repoOwner + '/' + repoName + '/contributors';
 
@@ -34,10 +33,10 @@ function getRepoContributors(repoOwner, repoName, cb) {
   request(options, function(err, res, body) {
     if (!err && res.statusCode == 200) {
     var contributors = JSON.parse(body);
-  } else if (res.statusCode == 400) {
-    console.log('The item you are looking for does not exists')
-  } else {
-    console.log('Error: ' + res.statusCode)
+  } else if (res.statusCode == 404) {
+    console.log('The repo or owner you are looking for does not exists: ' + res.statusCode)
+  } else  if (res.statusCode == 401 ){
+    console.log('The credentials are incorrect: ' + res.statusCode)
   }
     cb(err, contributors);
   });
@@ -56,7 +55,6 @@ function downloadImageByURL(URL, filePath) {
         throw err;
       })
       .on('response', function (response) {
-        console.log('Download complete')
       })
       .pipe(fs.createWriteStream(filePath));
 
@@ -85,4 +83,7 @@ function checkArgs(args) {
   getRepoContributors(owner, repo, loopResults);
 };
 
+console.log('Welcome to the Github Avatar Downloader')
 checkArgs(args);
+
+
