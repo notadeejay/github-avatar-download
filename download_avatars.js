@@ -1,7 +1,7 @@
 var request = require('request');
 var GITHUB_USER = "notadeejay";
 var GITHUB_TOKEN = "8475571afba7e2af0eb95296f64a11e3b4e09ba3";
-
+var fs = require('fs');
 
 
 function getRepoContributors(repoOwner, repoName, cb) {
@@ -20,13 +20,31 @@ function getRepoContributors(repoOwner, repoName, cb) {
   });
 };
 
+function downloadImageByURL(URL, filePath) {
+  request.get(URL)
+       .on('error', function (err) {                                   // Note 2
+         throw err;
+       })
+
+       .on('end', function() {
+        console.log('Download complete')
+       })
+
+       .pipe(fs.createWriteStream(filePath))
+}
+
+downloadImageByURL('https://avatars0.githubusercontent.com/u/1615?v=4', 'avatars/jeresig.jpg');
+
+
 
 function loopResults(err, result) {
   console.log("Errors:", err);
   for (let contributor of result) {
-    console.log('https://avatars0.githubusercontent.com/u/' + contributor.id + '?v=4')
+    return 'https://avatars0.githubusercontent.com/u/' + contributor.id + '?v=4'
   }
 }
+
+
 
 
 
