@@ -1,12 +1,10 @@
 var request = require('request');
-var GITHUB_USER = "notadeejay";
-var GITHUB_TOKEN = "8475571afba7e2af0eb95296f64a11e3b4e09ba3";
 var fs = require('fs');
-
+var dotenv = require('dotenv').config()
 
 
 function getRepoContributors(repoOwner, repoName, cb) {
-  var requestURL = 'https://' + GITHUB_USER + ':' + GITHUB_TOKEN + '@api.github.com/repos/' + repoOwner + '/' + repoName + '/contributors';
+  var requestURL = 'https://' + process.env.GITHUB_USER + ':' + process.env.GITHUB_TOKEN + '@api.github.com/repos/' + repoOwner + '/' + repoName + '/contributors';
 
   var options = {
     "url": requestURL,
