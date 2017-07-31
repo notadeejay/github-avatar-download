@@ -1,6 +1,19 @@
 var request = require('request');
 var fs = require('fs');
 var dotenv = require('dotenv').config()
+var mkdirp = require('mkdirp');
+var getPath = require('path').dirname
+var args = process.argv.slice(2);
+
+
+
+//if the .env file exists, you are good to go!
+if (!fs.existsSync('.env')) {
+  console.log ('The .env file does not exist')
+} else if (!process.env.GITHUB_USER || !process.env.GITHUB_TOKEN) {
+  console.log('The .env file is either empty or contains the wrong informations')
+}
+
 
 
 function getRepoContributors(repoOwner, repoName, cb) {
@@ -19,24 +32,37 @@ function getRepoContributors(repoOwner, repoName, cb) {
   }
   //initial request for contributor data from GitHub API
   request(options, function(err, res, body) {
-    var contibutors = JSON.parse(body);
-    cb(err, contibutors);
+    if (!err && res.statusCode == 200) {
+    var contributors = JSON.parse(body);
+  } else if (res.statusCode == 400) {
+    console.log('The item you are looking for does not exists')
+  } else {
+    console.log('Error: ' + res.statusCode)
+  }
+    cb(err, contributors);
   });
+
 }
 
 //request to download images using the avatar_url defined in loopResults
 function downloadImageByURL(URL, filePath) {
-  request.get(URL)
-    .on('error', function(err) {
-      throw err;
-    })
 
-    .on('end', function() {
-      console.log('Download complete');
-    })
+ //creates a directory if there is not already one created
+  mkdirp(getPath(filePath), function (err) {
+    if (err) throw err;
 
-    .pipe(fs.createWriteStream(filePath))
-}
+    request.get(URL)
+      .on('error', function (err) {
+        throw err;
+      })
+      .on('response', function (response) {
+        console.log('Download complete')
+      })
+      .pipe(fs.createWriteStream(filePath));
+
+  });
+
+};
 
 
 //loop through the parsed data set
@@ -47,4 +73,16 @@ function loopResults(err, result) {
 }
 
 
-getRepoContributors(process.argv[2], process.argv[3], loopResults);
+function checkArgs(args) {
+  if (args.length !== 2) {
+    console.log('Invalid input, not long enough');
+    return;
+  }
+
+  var owner = args[0]
+  var repo = args[1]
+
+  getRepoContributors(owner, repo, loopResults);
+};
+
+checkArgs(args);
