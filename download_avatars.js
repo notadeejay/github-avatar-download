@@ -15,18 +15,18 @@ function getRepoContributors(repoOwner, repoName, cb) {
       'User-Agent': 'GitHub Avatar Download - Student Project'
     }
   };
-
+  //if the user does not provide the right number of inputs, the request will not be made
   if (typeof(repoOwner) == 'undefined' || typeof(repoName) == 'undefined') {
     throw new Error('Incorrect input');
   }
-
+  //initial request for contributor data from GitHub API
   request(options, function(err, res, body) {
     var contibutors = JSON.parse(body);
     cb(err, contibutors);
   });
 }
 
-
+//request to download images using the avatar_url defined in loopResults
 function downloadImageByURL(URL, filePath) {
   request.get(URL)
     .on('error', function(err) {
@@ -41,7 +41,7 @@ function downloadImageByURL(URL, filePath) {
 }
 
 
-
+//loop through the parsed data set
 function loopResults(err, result) {
   for (var contributor of result) {
     downloadImageByURL(contributor.avatar_url, './avatars/' + contributor.login + '.jpg');
