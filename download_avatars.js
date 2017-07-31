@@ -16,6 +16,10 @@ function getRepoContributors(repoOwner, repoName, cb) {
     }
   };
 
+  if (typeof(repoOwner) == 'undefined' || typeof(repoName) == 'undefined') {
+    throw new Error ('Incorrect input');
+  }
+
   request(options, function (err, res, body) {
     var contibutors = JSON.parse(body);
     cb(err, contibutors);
