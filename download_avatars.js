@@ -2,7 +2,7 @@ var request = require('request');
 var fs = require('fs');
 var dotenv = require('dotenv').config()
 var mkdirp = require('mkdirp');
-var getPath = require('path').dirname
+var dir = './avatars/';
 var args = process.argv.slice(2);
 
 
@@ -43,24 +43,15 @@ function getRepoContributors(repoOwner, repoName, cb) {
 
 }
 
-//request to download images using the avatar_url defined in loopResults
-function downloadImageByURL(URL, filePath) {
 
- //creates a directory if there is not already one created
-  mkdirp(getPath(filePath), function (err) {
-    if (err) throw err;
+ function downloadImageByURL(url, filePath) {
+  // create folder
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
 
-    request.get(URL)
-      .on('error', function (err) {
-        throw err;
-      })
-      .on('response', function (response) {
-      })
-      .pipe(fs.createWriteStream(filePath));
-
-  });
-
-};
+  request(url).pipe(fs.createWriteStream(filePath)); // download avatar to specified folder
+}
 
 
 //loop through the parsed data set
